@@ -13,6 +13,18 @@ Built for and extracted from [**Infiltrate: Shadow Heist**](https://github.com/M
 a stealth platformer shipping on Android and iOS - every piece here has been driving real,
 shipped levels.
 
+## Documentation
+
+**[Usage guide](docs/GUIDE.md)** - start here. It covers:
+
+- [the game loop](docs/GUIDE.md#the-game-loop): how the pieces fit together each frame
+- every package with working code: [vision](docs/GUIDE.md#vision), [guards and noise](docs/GUIDE.md#actors), [cameras](docs/GUIDE.md#sentry), [lasers](docs/GUIDE.md#hazards), [levers](docs/GUIDE.md#mechanisms), [platforms](docs/GUIDE.md#platforms), [physics](docs/GUIDE.md#physics), [checkpoints](docs/GUIDE.md#progress), [gadgets](docs/GUIDE.md#powerups), [camera follow](docs/GUIDE.md#follow), [screen sizing](docs/GUIDE.md#layout) and [terrain](docs/GUIDE.md#terrain)
+- [recipes](docs/GUIDE.md#recipes): suspicion meters, respawning like the game, and proving a level is beatable
+
+Every public class and function also has KDoc, so your IDE shows the details on hover. For a
+complete working example, see the [demo](#demo). For what changed between versions, see the
+[changelog](CHANGELOG.md).
+
 ## Install
 
 ```kotlin
@@ -37,9 +49,6 @@ folds the repository name into the group for a project that publishes more than 
 Kotlin Multiplatform build publishes one artifact per target plus a root metadata artifact, all
 from a single Gradle project. `demo/build.gradle.kts` depends on the exact coordinate above (the
 `-jvm` variant), resolved from JitPack.
-
-**New here? Read the [usage guide](docs/GUIDE.md)** - the game loop, every package with working
-code, and recipes (suspicion meters, fair respawns, testing a level is beatable).
 
 ## Same code as the game
 
