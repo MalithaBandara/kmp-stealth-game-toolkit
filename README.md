@@ -97,16 +97,33 @@ fun tick(dt: Double, playerPosition: Rect) {
 }
 ```
 
+This is deliberately just a taste of one package. For every other package in the table above used
+together - `sentry`, `hazards`, `platforms` (including `HookCrate`+`BoxPhysics`), `follow`,
+`layout`, `terrain` - see `demo/src/main/kotlin/Main.kt`, which is the complete, realistic
+reference: a whole small level built from this library and nothing else.
+
 ## Demo
 
-`demo/` is a separate Gradle build (Compose Multiplatform, desktop target) that drives every piece
-above using nothing but circles, rectangles and lines - no image assets - to prove the library
-needs none. See [`demo/README.md`](demo/README.md) for how to run it.
+`demo/` is a separate Gradle build (Compose Multiplatform, desktop target) that drives every single
+package above - written the way a real consumer would use it, against the library's actual
+published JitPack artifact, not a local build - as one small scrolling level, using nothing but
+circles, rectangles, lines and paths. No image assets anywhere in this module.
 
-![Demo screenshot: a patrolling guard and a sweeping camera, both with their vision cones correctly cut off by a wall between them and the player, plus a laser and a moving platform, all drawn as plain shapes](docs/demo-screenshot.png)
+![Demo screenshot: a patrolling guard and a sweeping camera, both with their vision cones correctly cut off by a wall between them and the player, plus a sliding platform over a gap, on procedurally bumpy ground](docs/demo-start.png)
 
 The bend in both vision cones where they meet the gray wall is `VisionSystem` actually raycasting
-against the occluder, not a cosmetic clip.
+against the occluder, not a cosmetic clip. The ground's subtle irregular edge is `terrain.RoughBlock`.
+
+![Demo screenshot further into the level: a conveyor belt carrying three crates, a crate hanging from a hook above the ground, and an active laser gate](docs/demo-midlevel.png)
+
+Further into the level: `platforms.Conveyor`/`ConveyorCrate` looping crates along a belt,
+`platforms.HookCrate` hanging above the ground (swinging gently since its rig has a small sweep),
+and `hazards.Laser` mid-cycle. Cutting the hook crate loose (`HookCrate.detach()`) hands it off to
+a real tumbling `physics.RigidBox`, stepped through `physics.BoxPhysics` until it settles on the
+ground - see `demo/README.md` for controls, and `HookCrateTest`/`BoxPhysicsTest` in this repo for
+that exact hand-off proven in isolation.
+
+See [`demo/README.md`](demo/README.md) for how to run it and the full control list.
 
 ## Targets
 

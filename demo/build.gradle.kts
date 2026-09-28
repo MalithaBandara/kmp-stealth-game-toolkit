@@ -15,7 +15,7 @@ dependencies {
     // JitPack folds the repo name into the group for a multi-artifact Gradle project - the
     // library's own internal group (io.github.malithabandara) is NOT the JitPack coordinate.
     // See the top-level README's Install section.
-    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.0.0")
+    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.1.0")
 }
 
 compose.desktop {
