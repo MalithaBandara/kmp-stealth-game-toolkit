@@ -93,6 +93,11 @@ fun tick(dt: Double, playerPosition: Rect) {
 above using nothing but circles, rectangles and lines - no image assets - to prove the library
 needs none. See [`demo/README.md`](demo/README.md) for how to run it.
 
+![Demo screenshot: a patrolling guard and a sweeping camera, both with their vision cones correctly cut off by a wall between them and the player, plus a laser and a moving platform, all drawn as plain shapes](docs/demo-screenshot.png)
+
+The bend in both vision cones where they meet the gray wall is `VisionSystem` actually raycasting
+against the occluder, not a cosmetic clip.
+
 ## Targets
 
 `jvm`, `androidTarget`, `iosArm64`, `iosSimulatorArm64`, `js`, `wasmJs`. Every type in this library
