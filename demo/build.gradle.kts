@@ -4,18 +4,21 @@ plugins {
     id("org.jetbrains.compose") version "1.12.0"
 }
 
-repositories {
-    maven("https://jitpack.io")
-    google()
-    mavenCentral()
+// The demo consumes the published JitPack artifact, exactly as any outside project would. When
+// working on the library itself, run with -Pstealthkit.local to use a build published to
+// mavenLocal instead (./gradlew publishJvmPublicationToMavenLocal from the repo root first).
+val stealthkitVersion = "1.2.0"
+val stealthkit = if (providers.gradleProperty("stealthkit.local").isPresent) {
+    "io.github.malithabandara:kmp-stealth-game-toolkit-jvm:$stealthkitVersion"
+} else {
+    "com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v$stealthkitVersion"
 }
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    // JitPack folds the repo name into the group for a multi-artifact Gradle project - the
-    // library's own internal group (io.github.malithabandara) is NOT the JitPack coordinate.
-    // See the top-level README's Install section.
-    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.1.0")
+    implementation(stealthkit)
+
+    testImplementation(kotlin("test"))
 }
 
 compose.desktop {

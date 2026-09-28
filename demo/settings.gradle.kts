@@ -1,12 +1,22 @@
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
-// Deliberately a separate Gradle build from the library's own settings.gradle.kts (see the
-// library's README) so Compose Multiplatform's dependency graph never touches the library's own
-// build - JitPack only ever needs to build the library, never this demo.
-rootProject.name = "stealth-toolkit-demo"
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+        mavenLocal {
+            content { includeGroup("io.github.malithabandara") }
+        }
+    }
+}
+
+// A standalone build on purpose: the demo consumes the library exactly the way any outside
+// project would - from JitPack - rather than as a sibling Gradle module.
+rootProject.name = "stealthkit-demo"
