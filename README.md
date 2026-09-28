@@ -2,7 +2,8 @@
 
 A small, pure Kotlin Multiplatform toolkit for building 2D stealth games: occluder-aware vision
 cones, patrolling guards, sweeping security cameras, timed laser hazards, moving platforms and
-conveyors, plus a few general-purpose utilities that shipped alongside them.
+conveyors, levers, checkpoints and gadgets, plus a few general-purpose utilities that shipped
+alongside them.
 
 Zero platform APIs, zero rendering, zero assets - every type here is plain data and math. You
 bring the renderer (KorGE, Compose Canvas, LibGDX-on-JVM, raw SVG, whatever); this library just
@@ -21,12 +22,12 @@ repositories {
 
 dependencies {
     // from a plain JVM or Android project:
-    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.0.0")
+    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.2.0")
     // (swap the artifact suffix for your platform: -android, -js, -wasm-js, -iosarm64, -iossimulatorarm64)
 
     // from a Kotlin Multiplatform project's commonMain, this single coordinate resolves the
     // right platform variant automatically via Gradle's variant-aware resolution:
-    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit:v1.0.0")
+    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit:v1.2.0")
 }
 ```
 
@@ -34,8 +35,18 @@ dependencies {
 folds the repository name into the group for a project that publishes more than one Maven artifact
 (`com.github.<owner>.<repo>:<artifact>:<tag>`, per JitPack's own multi-module convention), since a
 Kotlin Multiplatform build publishes one artifact per target plus a root metadata artifact, all
-from a single Gradle project. Verified directly - `demo/build.gradle.kts` depends on the exact
-coordinate above (the `-jvm` variant) resolved live from JitPack, not from a local build.
+from a single Gradle project. `demo/build.gradle.kts` depends on the exact coordinate above (the
+`-jvm` variant), resolved from JitPack.
+
+**New here? Read the [usage guide](docs/GUIDE.md)** - the game loop, every package with working
+code, and recipes (suspicion meters, fair respawns, testing a level is beatable).
+
+## Same code as the game
+
+Every type here is the code that runs in Infiltrate. The only changes are the ones a library needs:
+the game's `Player` becomes plain target points or bounds, `CameraFollow` is named `SmoothFollow`,
+and comments that referred to specific levels are generalised. The newer pieces (`powerups`,
+`mechanisms`, `progress`, `actors.Noise`) are ported from the game the same way.
 
 ## What's in it
 
@@ -43,10 +54,13 @@ coordinate above (the `-jvm` variant) resolved live from JitPack, not from a loc
 | --- | --- |
 | `geometry` | 2D vector/segment/rect math, segment intersection, raycasting, line-of-sight checks. The foundation everything else sits on. |
 | `vision` | `VisionSystem.computeVisionPolygon` - an occluder-aware field-of-view cone as a renderable polygon, with crisp shadow edges at occluder corners. Plus spotted-distance checks against one or several target points, so a body mostly behind cover can still register once enough of it is exposed. |
-| `actors` | `Guard` - patrols a route, turns around at obstacles or route ends, investigates a noise or a lost sighting, then returns to patrol. |
+| `actors` | `Guard` - patrols a route, turns around at obstacles or route ends, investigates a noise or a lost sighting, then returns to patrol. `Noise` - footstep noise that guards hear if nothing solid is in the way. |
 | `sentry` | `Camera` - sweeps between two angles, optionally pausing at each end, and pauses its sweep entirely while it has a target in view. |
 | `hazards` | `Laser` - a timed on/off beam (tiltable up to 45 degrees from vertical) that can be permanently switched off via a caller-owned trigger id. |
-| `platforms` | `MovingPlatform` (smooth sinusoidal motion, gated activation, one-shot re-arming), `Conveyor`/`ConveyorCrate` (belt-driven drift, looping, patrolling, vertical bob), and `HookCrate` (a load hanging from a hook - swings as a damped pendulum if the rig travels, hands off into a real tumbling `RigidBox` via `BoxPhysics` the instant it's cut loose). |
+| `progress` | `Checkpoint` + `CheckpointProgress` - the game's checkpoints: trigger zones secured in order, or automatic every 250 units. |
+| `mechanisms` | `Lever` - the game's lever: a switch that drives lasers, platforms or hook crates by id. |
+| `powerups` | `PowerupType` + `ActivePowerups` - the game's gadgets (Camera Jammer, Guard Shield, Invisibility Cloak, Stealth Boots, Checkpoints, Remote Trigger), ported from its `Powerup.kt`. |
+| `platforms` | `MovingPlatform` (smooth sinusoidal motion, gated activation, one-shot re-arming), `ConveyorDef`/`ConveyorCrate` (belt-driven drift, looping, patrolling, vertical bob), and `HookCrate` (a load hanging from a hook - swings as a damped pendulum if the rig travels, hands off into a real tumbling `RigidBox` via `BoxPhysics` the instant it's cut loose). |
 | `follow` | `SmoothFollow` - a one-dimensional critically damped spring for a camera (or any value) that should chase a moving target without the jolts a plain lerp produces. |
 | `layout` | `ScreenLayout` - sizes a fixed-design-resolution 2D canvas to any device's aspect ratio without ever letterboxing or cropping, plus safe-area-inset conversion into virtual canvas units. |
 | `physics` | `BoxPhysics` - a small impulse-based rigid-box solver. See "About the physics" below before assuming it's more than it is. |
@@ -97,33 +111,27 @@ fun tick(dt: Double, playerPosition: Rect) {
 }
 ```
 
-This is deliberately just a taste of one package. For every other package in the table above used
-together - `sentry`, `hazards`, `platforms` (including `HookCrate`+`BoxPhysics`), `follow`,
-`layout`, `terrain` - see `demo/src/main/kotlin/Main.kt`, which is the complete, realistic
-reference: a whole small level built from this library and nothing else.
+This is deliberately just a taste of one package. The [usage guide](docs/GUIDE.md) covers every
+package, and [`demo/src/main/kotlin/Game.kt`](demo/src/main/kotlin/Game.kt) is the complete,
+realistic reference: a whole small level built from this library and nothing else.
 
 ## Demo
 
-`demo/` is a separate Gradle build (Compose Multiplatform, desktop target) that drives every single
-package above - written the way a real consumer would use it, against the library's actual
-published JitPack artifact, not a local build - as one small scrolling level, using nothing but
-circles, rectangles, lines and paths. No image assets anywhere in this module.
+`demo/` is a separate Gradle build (Compose Desktop) containing a small playable stealth level
+that uses every package above, pulled from the library's published JitPack artifact and drawn with
+nothing but rectangles, circles, lines and paths. No image assets.
 
-![Demo screenshot: a patrolling guard and a sweeping camera, both with their vision cones correctly cut off by a wall between them and the player, plus a sliding platform over a gap, on procedurally bumpy ground](docs/demo-start.png)
+```bash
+./gradlew -p demo run
+```
 
-The bend in both vision cones where they meet the gray wall is `VisionSystem` actually raycasting
-against the occluder, not a cosmetic clip. The ground's subtle irregular edge is `terrain.RoughBlock`.
+A scripted playthrough test (`./gradlew -p demo test`) proves the level can be finished without
+being caught. See [`demo/README.md`](demo/README.md) for controls and a section-by-section map of
+which library types each part of the level uses.
 
-![Demo screenshot further into the level: a conveyor belt carrying three crates, a crate hanging from a hook above the ground, and an active laser gate](docs/demo-midlevel.png)
+## Changelog
 
-Further into the level: `platforms.Conveyor`/`ConveyorCrate` looping crates along a belt,
-`platforms.HookCrate` hanging above the ground (swinging gently since its rig has a small sweep),
-and `hazards.Laser` mid-cycle. Cutting the hook crate loose (`HookCrate.detach()`) hands it off to
-a real tumbling `physics.RigidBox`, stepped through `physics.BoxPhysics` until it settles on the
-ground - see `demo/README.md` for controls, and `HookCrateTest`/`BoxPhysicsTest` in this repo for
-that exact hand-off proven in isolation.
-
-See [`demo/README.md`](demo/README.md) for how to run it and the full control list.
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Targets
 
