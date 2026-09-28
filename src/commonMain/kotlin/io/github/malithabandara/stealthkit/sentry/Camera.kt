@@ -63,6 +63,7 @@ data class Camera(
 
     val isPausedFromDetection: Boolean get() = isDetectingPlayer || detectionPauseTimer > 0.0
 
+    /** Call every frame the camera sees the player: it stops sweeping, and stays stopped for [detectionPauseDuration] after. */
     fun onPlayerSpotted() {
         isDetectingPlayer = true
         if (detectionPauseDuration > 0.0) {
@@ -70,15 +71,18 @@ data class Camera(
         }
     }
 
+    /** Call when it stops seeing the player. The post-detection pause then runs out before it sweeps again. */
     fun onVisualLost() {
         isDetectingPlayer = false
     }
 
+    /** Forgets any detection and resumes sweeping at once. */
     fun resetDetectionPause() {
         isDetectingPlayer = false
         detectionPauseTimer = 0.0
     }
 
+    /** Advances the sweep one frame - unless it is watching the player, or pausing after that or at a sweep end. */
     fun update(dt: Double) {
         if (minAngle >= maxAngle || sweepSpeed <= 0.0) {
             currentAngle = minAngle
@@ -112,6 +116,7 @@ data class Camera(
         }
     }
 
+    /** Back to the start of its sweep with no detection - a level restart. */
     fun reset() {
         currentAngle = minAngle
         sweepDirection = 1.0
@@ -127,6 +132,10 @@ data class Camera(
         /** See [eyePosition]. */
         const val LENS_LENGTH = 20.0
 
+        /**
+         * A camera sweeping [sweepAngleDelta] either side of [centerAngle] (radians; PI/2 looks straight down),
+         * starting at the low end. ([x], [y]) is the mount.
+         */
         fun createSweeping(
             x: Double,
             y: Double,

@@ -44,6 +44,7 @@ class RigidBox(
         return Vec2d(cx + bx * c - by * s, cy + bx * s + by * c)
     }
 
+    /** The four corners in world space, clockwise from the top-left of the unrotated box. */
     fun corners(): List<Vec2d> {
         val hw = width / 2.0
         val hh = height / 2.0

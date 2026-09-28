@@ -259,6 +259,7 @@ object DeviceScreen {
 
     val isTablet: Boolean get() = metrics?.isTablet ?: false
 
+    /** Publishes the screen size (and optionally the safe-area insets), all in dp/points/logical pixels. */
     fun publish(
         widthDp: Double,
         heightDp: Double,

@@ -9,7 +9,7 @@ plugins {
 // matter for mavenLocal() during local development (see demo/) and for a future Maven Central
 // publish. See README for why the internal group and the JitPack coordinate differ.
 group = "io.github.malithabandara"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     google()

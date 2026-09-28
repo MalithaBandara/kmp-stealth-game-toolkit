@@ -4,7 +4,6 @@ import io.github.malithabandara.stealthkit.geometry.Rect
 import io.github.malithabandara.stealthkit.physics.BoxPhysics
 import io.github.malithabandara.stealthkit.physics.RigidBox
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -131,8 +130,8 @@ data class HookCrate(
         }
         val w = initialBounds.width
         val h = initialBounds.height
-        val c = abs(cos(swingAngle))
-        val s = abs(sin(swingAngle))
+        val c = kotlin.math.abs(cos(swingAngle))
+        val s = kotlin.math.abs(sin(swingAngle))
         val bw = w * c + h * s
         val bh = w * s + h * c
         return Rect(hangingCenterX() - bw / 2.0, hangingCenterY() - bh / 2.0, bw, bh)
@@ -188,10 +187,27 @@ data class HookCrate(
         body?.let { bounds = it.aabb() }
     }
 
-    fun reset() {
-        sweepClock = 0.0
-        offsetX = sweepOffsetAt(0.0)
-        hookVx = sweepVelAt(0.0)
+    /**
+     * Cut loose and not lying flat - stood on its end, or still tumbling. A caller will usually
+     * refuse to let the player climb onto such a load.
+     */
+    val isLooseAndNotFlat: Boolean
+        get() {
+            if (!physical || !isDetached || carriedByCartId != null) return false
+            val b = body ?: return false
+            val square = kotlin.math.round(b.angle / kotlin.math.PI) * kotlin.math.PI
+            return kotlin.math.abs(b.angle - square) > CATCH_MAX_TILT
+        }
+
+    /**
+     * Back on its hook, with nothing that happened since kept. [atSweepClock] is where the rig's
+     * travel picks up: 0 (its near end) for a fresh level; a respawn can pass the current clock so
+     * the rig keeps its phase against the level clock.
+     */
+    fun reset(atSweepClock: Double = 0.0) {
+        sweepClock = atSweepClock
+        offsetX = sweepOffsetAt(atSweepClock)
+        hookVx = sweepVelAt(atSweepClock)
         swingAngle = 0.0
         swingRate = 0.0
         body = null

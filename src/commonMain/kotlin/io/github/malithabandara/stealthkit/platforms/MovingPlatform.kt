@@ -55,14 +55,29 @@ data class MovingPlatformDef(
      */
     val crushesOnContact: Boolean = false,
     /**
+     * Only meaningful with [crushesOnContact]: when true, the platform is a hazard only to
+     * something touching its UNDERSIDE from below (a head, or the top of a cart) - a side contact
+     * is an ordinary solid that shoves the player and stops a pushed cart. Off, a crusher catches
+     * anything whose feet are under its underside, side-on included. A signal for the owning
+     * simulation to enforce, like [crushesOnContact].
+     */
+    val crushesOnlyFromBelow: Boolean = false,
+    /**
      * When true, signals that a body which took off from floor level (the ground, or anything
      * standing on it) should not be able to board this platform directly - from anywhere higher it
      * is an ordinary surface. Like [crushesOnContact], this is a signal for the owning simulation
      * to enforce, not logic this class applies itself.
      */
-    val noGroundBoarding: Boolean = false
+    val noGroundBoarding: Boolean = false,
+    /**
+     * Two platforms flagged with this crush whoever is caught BETWEEN them when they come
+     * together - closer than a body is wide, the body's centre between theirs, and level with
+     * both. The owning simulation checks every pair; this class carries no logic for it.
+     */
+    val squeezes: Boolean = false
 )
 
+/** How far a [MovingPlatform] moved in one [MovingPlatform.update] - add it to anything riding it. */
 data class PlatformDisplacement(
     val dx: Double,
     val dy: Double
@@ -93,7 +108,11 @@ class MovingPlatform(
     /** See [MovingPlatformDef.crushesOnContact]. */
     val crushesOnContact: Boolean = false,
     /** See [MovingPlatformDef.noGroundBoarding]. */
-    val noGroundBoarding: Boolean = false
+    val noGroundBoarding: Boolean = false,
+    /** See [MovingPlatformDef.squeezes]. */
+    val squeezes: Boolean = false,
+    /** See [MovingPlatformDef.crushesOnlyFromBelow]. */
+    val crushesOnlyFromBelow: Boolean = false
 ) {
     constructor(
         id: String,
@@ -214,6 +233,7 @@ class MovingPlatform(
         return PlatformDisplacement(x - oldX, y - oldY)
     }
 
+    /** Back to its rest position and, if gated, parked again - a level restart. */
     fun reset() {
         x = initialX
         y = initialY

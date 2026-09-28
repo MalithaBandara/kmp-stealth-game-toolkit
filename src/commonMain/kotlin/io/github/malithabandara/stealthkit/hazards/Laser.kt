@@ -237,6 +237,7 @@ class Laser(
         isActive = normalizedPhase < activeDuration
     }
 
+    /** Seconds from [totalElapsedSeconds] until the beam next switches on; 0 if it is on now. */
     fun remainingInactiveTime(totalElapsedSeconds: Double): Double {
         if (isAlwaysActive) return 0.0
         val cycle = activeDuration + inactiveDuration
@@ -246,6 +247,7 @@ class Laser(
         return if (normalizedPhase >= activeDuration) cycle - normalizedPhase else 0.0
     }
 
+    /** Seconds from [totalElapsedSeconds] until the beam next switches off; 0 if it is off now, infinite if [isAlwaysActive]. */
     fun timeUntilInactive(totalElapsedSeconds: Double): Double {
         if (isAlwaysActive) return Double.POSITIVE_INFINITY
         val cycle = activeDuration + inactiveDuration
@@ -255,6 +257,7 @@ class Laser(
         return if (normalizedPhase < activeDuration) activeDuration - normalizedPhase else 0.0
     }
 
+    /** Back on, and no longer [isDisabled] - a level restart. */
     fun reset() {
         isActive = true
         isDisabled = false

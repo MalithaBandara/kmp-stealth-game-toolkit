@@ -7,6 +7,7 @@ import io.github.malithabandara.stealthkit.geometry.Vec2d
 import io.github.malithabandara.stealthkit.sentry.Camera
 import kotlin.math.*
 
+/** What a guard or camera can see: the vision cone as a polygon for drawing, and whether it spots the player. */
 object VisionSystem {
 
     /**
@@ -106,6 +107,7 @@ object VisionSystem {
         return closestDist
     }
 
+    /** [getPlayerSpottedDistance] using [guard]'s eye, facing, range and field of view. */
     fun getPlayerSpottedDistance(
         guard: Guard,
         targetPoints: List<Vec2d>,
@@ -119,6 +121,7 @@ object VisionSystem {
         occluders = occluders
     )
 
+    /** [getPlayerSpottedDistance] using [camera]'s lens, facing, range and field of view. */
     fun getPlayerSpottedDistance(
         camera: Camera,
         targetPoints: List<Vec2d>,
@@ -132,12 +135,14 @@ object VisionSystem {
         occluders = occluders
     )
 
+    /** Whether [guard] can see any of [targetPoints]. */
     fun isPlayerSpotted(
         guard: Guard,
         targetPoints: List<Vec2d>,
         occluders: List<Rect>
     ): Boolean = getPlayerSpottedDistance(guard, targetPoints, occluders) != null
 
+    /** Whether [camera] can see any of [targetPoints]. */
     fun isPlayerSpotted(
         camera: Camera,
         targetPoints: List<Vec2d>,

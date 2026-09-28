@@ -79,8 +79,7 @@ class ConveyorCrate(
     var x: Double = initialX
         private set
 
-    val bounds: Rect
-        get() = Rect(x, y, width, height)
+    val bounds: Rect get() = Rect(x, y, width, height)
 
     val top: Double get() = y
     val bottom: Double get() = y + height
@@ -92,6 +91,11 @@ class ConveyorCrate(
     var vy: Double = 0.0
         private set
 
+    /**
+     * Moves the crate by [dx] - the belt's own travel this frame times [speedMultiplier] (a patrolling
+     * crate flips the multiplier's sign at each bound) - and applies the vertical bob for level time
+     * [totalElapsedSeconds].
+     */
     fun update(dx: Double, totalElapsedSeconds: Double = 0.0) {
         x += dx
         if (isPatrol) {
@@ -122,6 +126,7 @@ class ConveyorCrate(
         vy = deltaY
     }
 
+    /** Back to where it started - a level restart. */
     fun reset() {
         x = initialX
         y = initialY

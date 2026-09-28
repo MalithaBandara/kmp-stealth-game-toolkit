@@ -5,6 +5,7 @@ import io.github.malithabandara.stealthkit.geometry.Vec2d
 import kotlin.math.PI
 import kotlin.math.abs
 
+/** What a [Guard] is doing: walking his route, or stopped to look at something. */
 enum class GuardState {
     PATROL,
     INVESTIGATING
@@ -112,6 +113,10 @@ data class Guard(
         const val TORCH_ABOVE_FEET_PER_HEIGHT = 0.56
     }
 
+    /**
+     * Stops and turns to look toward [targetX] for [investigateDuration] - e.g. after a sighting.
+     * Investigating is look-only: the guard never leaves his spot. [moveTowards] is not used.
+     */
     fun startInvestigating(targetX: Double, moveTowards: Boolean = false) {
         if (state == GuardState.PATROL) {
             patrolFacing = facing
@@ -129,6 +134,7 @@ data class Guard(
         }
     }
 
+    /** Like [startInvestigating], but flagged [investigatedFromNoise] - call it when he hears the player. */
     fun onNoiseHeard(noiseX: Double) {
         if (state == GuardState.PATROL) {
             patrolFacing = facing
@@ -146,10 +152,12 @@ data class Guard(
         }
     }
 
+    /** The player slipped out of sight: look toward where they were last seen. */
     fun onVisualLost(lastSeenX: Double) {
         startInvestigating(lastSeenX, moveTowards = false)
     }
 
+    /** Still seeing the player mid-investigation: re-aim at [playerX] and restart the investigation clock. */
     fun onPlayerSpottedWhileInvestigating(playerX: Double) {
         targetInvestigateX = playerX
         isAtInvestigateTarget = true
@@ -162,6 +170,7 @@ data class Guard(
         }
     }
 
+    /** Drops any investigation and resumes the patrol, facing back along the route. */
     fun returnToPatrol() {
         state = GuardState.PATROL
         investigatedFromNoise = false
@@ -186,6 +195,7 @@ data class Guard(
         }
     }
 
+    /** Advances one frame: walks the route (turning at its ends or at any of [obstacles]), or counts down an investigation. */
     fun update(dt: Double, obstacles: List<Rect> = emptyList()) {
         isWalking = false
         when (state) {
