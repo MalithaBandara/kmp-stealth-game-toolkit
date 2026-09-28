@@ -46,10 +46,11 @@ coordinate above (the `-jvm` variant) resolved live from JitPack, not from a loc
 | `actors` | `Guard` - patrols a route, turns around at obstacles or route ends, investigates a noise or a lost sighting, then returns to patrol. |
 | `sentry` | `Camera` - sweeps between two angles, optionally pausing at each end, and pauses its sweep entirely while it has a target in view. |
 | `hazards` | `Laser` - a timed on/off beam (tiltable up to 45 degrees from vertical) that can be permanently switched off via a caller-owned trigger id. |
-| `platforms` | `MovingPlatform` (smooth sinusoidal motion, gated activation, one-shot re-arming) and `Conveyor`/`ConveyorCrate` (belt-driven drift, looping, patrolling, vertical bob). |
+| `platforms` | `MovingPlatform` (smooth sinusoidal motion, gated activation, one-shot re-arming), `Conveyor`/`ConveyorCrate` (belt-driven drift, looping, patrolling, vertical bob), and `HookCrate` (a load hanging from a hook - swings as a damped pendulum if the rig travels, hands off into a real tumbling `RigidBox` via `BoxPhysics` the instant it's cut loose). |
 | `follow` | `SmoothFollow` - a one-dimensional critically damped spring for a camera (or any value) that should chase a moving target without the jolts a plain lerp produces. |
 | `layout` | `ScreenLayout` - sizes a fixed-design-resolution 2D canvas to any device's aspect ratio without ever letterboxing or cropping, plus safe-area-inset conversion into virtual canvas units. |
 | `physics` | `BoxPhysics` - a small impulse-based rigid-box solver. See "About the physics" below before assuming it's more than it is. |
+| `terrain` | `RoughBlock` - generates a jittered top-edge outline for a platform, so it reads as rough concrete/rooftop instead of a perfect rectangle. Purely a drawing outline; pair it with a plain `Rect` for collision. |
 
 ## About the physics
 
