@@ -10,13 +10,8 @@ build it from inside this directory.
 
 ## Run it
 
-First, publish the library to your local Maven repo (from the repo root, not this directory):
-
-```bash
-./gradlew publishToMavenLocal
-```
-
-Then, from this directory:
+This module depends on the library's real published JitPack artifact (not a local build), so it
+works straight away:
 
 ```bash
 ./gradlew run

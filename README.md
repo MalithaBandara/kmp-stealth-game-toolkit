@@ -20,13 +20,22 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.MalithaBandara:kmp-stealth-game-toolkit:v1.0.0")
+    // from a plain JVM or Android project:
+    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit-jvm:v1.0.0")
+    // (swap the artifact suffix for your platform: -android, -js, -wasm-js, -iosarm64, -iossimulatorarm64)
+
+    // from a Kotlin Multiplatform project's commonMain, this single coordinate resolves the
+    // right platform variant automatically via Gradle's variant-aware resolution:
+    implementation("com.github.MalithaBandara.kmp-stealth-game-toolkit:kmp-stealth-game-toolkit:v1.0.0")
 }
 ```
 
-JitPack resolves the coordinate above regardless of this project's internal Maven `group`
-(`io.github.malithabandara`) - that's JitPack's own scheme (`com.github.<owner>:<repo>:<tag>`), not
-a typo.
+**The group is not this project's own Maven `group`** (`io.github.malithabandara`) - JitPack
+folds the repository name into the group for a project that publishes more than one Maven artifact
+(`com.github.<owner>.<repo>:<artifact>:<tag>`, per JitPack's own multi-module convention), since a
+Kotlin Multiplatform build publishes one artifact per target plus a root metadata artifact, all
+from a single Gradle project. Verified directly - `demo/build.gradle.kts` depends on the exact
+coordinate above (the `-jvm` variant) resolved live from JitPack, not from a local build.
 
 ## What's in it
 
